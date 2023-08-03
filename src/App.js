@@ -1,58 +1,80 @@
-import { Component } from 'react';
+import { Component, useEffect, useState } from 'react';
 import './App.css';
 import CardList from './components/card-list/card-list.component';
 import SearchBox from './components/search-box/search-box.component';
 
-class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      monsters: [],
-      searchField: ''
-    }
-  }
 
-  componentDidMount() {
+const App = () => {
+
+  const [searchField, setSearchField] = useState('');
+  const [monsters, setMonsters] = useState([])
+  const [fliteredMonsters, setFliteredMonsters] = useState(monsters)
+
+  useEffect(() => {
     fetch('https://jsonplaceholder.typicode.com/users')
       .then((response) => response.json())
-      .then((users) => this.setState(
-        () => { return { monsters: users } }
-      ))
+      .then((users) => setMonsters(users))
+  }
+    , [])
+
+  useEffect(() => {
+    const newfliteredMonsters = monsters.filter(
+      (monster) => {
+        return monster.name.toLocaleLowerCase().includes(searchField)
+      })
+    setFliteredMonsters(newfliteredMonsters)
+  },[monsters,searchField])
+
+  const onSearchChange = (event) => {
+    const searchFieldstring = event.target.value.toLocaleLowerCase()
+    setSearchField(searchFieldstring)
   }
 
-  render() {
-    const fliteredMonsters = this.state.monsters.filter(
-      (monster) => { return monster.name.toLocaleLowerCase().includes(this.state.searchField) }
-    )
-    const onSearchChange = (event) => {
-      const searchField = event.target.value.toLocaleLowerCase()
-      this.setState(() => {
-        return { searchField }
-      })
-    }
 
 
-    return (
-      <div className="App">
-        <SearchBox  
+
+
+  return (
+    <div className="App">
+
+      <SearchBox
         classNameHandler='search-box'
         placeholderHandler='search monsters'
         onChangerHandler={onSearchChange}
-        ></SearchBox>
+      ></SearchBox>
 
-        {/* {fliteredMonsters.map((monster) => {
-          return (
-            <div key={monster.id}>
-              <h1>{monster.name}</h1>
-            </div>
-          )
-        })} */}
+      <CardList monsters={fliteredMonsters}></CardList>
 
-        <CardList monsters={fliteredMonsters}></CardList>
+    </div>
+  );
 
-      </div>
-    );
-  }
 }
+
+
+// class App extends Component {
+//   constructor() {
+//     super();
+//     this.state = {
+//       monsters: [],
+//       searchField: ''
+//     }
+//   }
+
+//   componentDidMount() {
+//     fetch('https://jsonplaceholder.typicode.com/users')
+//       .then((response) => response.json())
+//       .then((users) => this.setState(
+//         () => { return { monsters: users } }
+//       ))
+//   }
+
+//   render() {
+//    
+
+
+
+//     
+//   }
+// }
 
 export default App;
